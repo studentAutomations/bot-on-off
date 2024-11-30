@@ -1,0 +1,54 @@
+name: Bot off
+
+on:
+  workflow_dispatch:  # Allows manual triggering of the workflow
+
+jobs:
+  disable_actions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Disable GitHub Actions for multiple repositories
+        env:
+          MY_PERSONAL_TOKEN: ${{ secrets.MY_PERSONAL_TOKEN }}  # Use your custom PAT stored in Secrets
+        run: |
+          # Ensure the user provides the necessary inputs
+          if [ -z "$MY_PERSONAL_TOKEN" ]; then
+            echo "Personal access token is required"
+            exit 1
+          fi
+
+          USER="studentAutomations" 
+
+          # Define the list of repositories to disable actions for
+          REPOSITORIES=("cs-oop" "cs-baze" "cs-aor1" "cs-lp" "cs-dmat")  # Add your repositories here
+
+          for REPO in "${REPOSITORIES[@]}"; do
+            echo "Disabling actions for repository: $REPO"
+            
+            # GitHub API URL to disable Actions for each repository
+            API_URL="https://api.github.com/repos/$USER/$REPO/actions/permissions"
+            
+            # Disable GitHub Actions by setting enabled to false and capture the response
+            RESPONSE=$(curl -X PUT \
+              -H "Authorization: token $MY_PERSONAL_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              $API_URL \
+              -d '{"enabled": false}' \
+              -w "%{http_code}" -s)
+
+            # Check the response code to see if it was successful
+            HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
+            if [ "$HTTP_STATUS" -eq 200 ]; then
+              echo "GitHub Actions have been disabled for the repository $USER/$REPO."
+            else
+              echo "Failed to disable actions for $USER/$REPO. HTTP Status: $HTTP_STATUS"
+              echo "$RESPONSE"
+            fi
+          done
+
+          
+          echo "GitHub Actions have been disabled for the repository $USER/$REPOSITORY."

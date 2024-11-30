@@ -1,0 +1,51 @@
+name: Bot on
+
+on:
+  workflow_dispatch:  # Allows manual triggering of the workflow
+
+jobs:
+  enable_actions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Enable GitHub Actions for multiple repositories
+        env:
+          MY_PERSONAL_TOKEN: ${{ secrets.MY_PERSONAL_TOKEN }}  # Use your custom PAT stored in Secrets
+        run: |
+          # Ensure the user provides the necessary inputs
+          if [ -z "$MY_PERSONAL_TOKEN" ]; then
+            echo "Personal access token is required"
+            exit 1
+          fi
+
+          USER="studentAutomations"  
+
+          # Define the list of repositories to enable actions for
+          REPOSITORIES=("cs-lp" "cs-baze" "cs-oop" "cs-dmat" "cs-aor1")  # Add your repositories here
+
+          for REPO in "${REPOSITORIES[@]}"; do
+            echo "Enabling actions for repository: $REPO"
+            
+            # GitHub API URL to enable Actions for each repository
+            API_URL="https://api.github.com/repos/$USER/$REPO/actions/permissions"
+            
+            # Enable GitHub Actions by setting enabled to true and capture the response
+            RESPONSE=$(curl -X PUT \
+              -H "Authorization: token $MY_PERSONAL_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              $API_URL \
+              -d '{"enabled": true}' \
+              -w "%{http_code}" -s)
+
+            # Check the response code to see if it was successful
+            HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
+            if [ "$HTTP_STATUS" -eq 200 ]; then
+              echo "GitHub Actions have been enabled for the repository $USER/$REPO."
+            else
+              echo "Failed to enable actions for $USER/$REPO. HTTP Status: $HTTP_STATUS"
+              echo "$RESPONSE"
+            fi
+          done
