@@ -24,7 +24,7 @@ jobs:
           USER="studentAutomations"  
 
           # Define the list of repositories to enable actions for
-          REPOSITORIES=("cs-lp" "cs-baze" "cs-oop" "cs-dmat" "cs-aor1")  # Add your repositories here
+          REPOSITORIES=("logicko-projektovanje" "baze-podataka" "objektno-orijentisano-programiranje" "diskretna-matematika" "arhitektura-i-organizacija-racunara-1")  # Add your repositories here
 
           for REPO in "${REPOSITORIES[@]}"; do
             echo "Enabling actions for repository: $REPO"
