@@ -24,7 +24,7 @@ jobs:
           USER="studentAutomations" 
 
           # Define the list of repositories to disable actions for
-          REPOSITORIES=("logicko-projektovanje" "baze-podataka" "objektno-orijentisano-programiranje" "diskretna-matematika" "arhitektura-i-organizacija-racunara-1")  # Add your repositories here
+          REPOSITORIES=("lp" "bp" "oop" "dmat" "aor-1")  # Add your repositories here
 
           for REPO in "${REPOSITORIES[@]}"; do
             echo "Disabling actions for repository: $REPO"
